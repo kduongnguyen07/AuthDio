@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+, including HiFiDeck minSdk 35 / targetSdk 37) backup & device-transfer rules.
+  SEC-03 policy:
+  - Allow-lists ONLY `hifideck_data` (automatically excluding all sibling directories under
+    filesDir such as `hifideck_work`, `hifideck_archives`, `hifideck_covers`,
+    `hifideck_artist_covers`, and `hifideck_lyrics`, plus any future caches).
+  - Explicitly excludes P0 audio rollback copies (`hifideck_data/pending_writes`),
+    diagnostic logs (`hifideck_data/settings.log`), download URL queue/history
+    (`hifideck_data/settings.json`), listening history, analysis caches, and transient state.
+  - Preserves only user-owned playlist, smart-playlist, and artist-alias definitions
+    (`playlists.json`, `smart_playlists.json`, `artists.json`).
+  - Never deletes local files; P0 startup recovery under `filesDir/hifideck_data/pending_writes/`
+    remains completely intact on-device.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="hifideck_data" />
+        <exclude domain="file" path="hifideck_data/pending_writes" />
+        <exclude domain="file" path="hifideck_data/settings.log" />
+        <exclude domain="file" path="hifideck_data/settings.json" />
+        <exclude domain="file" path="hifideck_data/settings.tmp" />
+        <exclude domain="file" path="hifideck_data/listening_history.json" />
+        <exclude domain="file" path="hifideck_data/audio_analysis_cache.json" />
+        <exclude domain="file" path="hifideck_data/playback_state.json" />
+        <exclude domain="file" path="hifideck_data/sleep_timer.json" />
+    </cloud-backup>
+
+    <device-transfer>
+        <include domain="file" path="hifideck_data" />
+        <exclude domain="file" path="hifideck_data/pending_writes" />
+        <exclude domain="file" path="hifideck_data/settings.log" />
+        <exclude domain="file" path="hifideck_data/settings.json" />
+        <exclude domain="file" path="hifideck_data/settings.tmp" />
+        <exclude domain="file" path="hifideck_data/listening_history.json" />
+        <exclude domain="file" path="hifideck_data/audio_analysis_cache.json" />
+        <exclude domain="file" path="hifideck_data/playback_state.json" />
+        <exclude domain="file" path="hifideck_data/sleep_timer.json" />
+    </device-transfer>
+</data-extraction-rules>

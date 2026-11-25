@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Legacy Auto Backup rules kept in strict parity with data_extraction_rules.xml (SEC-03).
+  Allow-lists only `hifideck_data` (automatically excluding `hifideck_work`, `hifideck_archives`,
+  artwork/lyrics caches, etc.) and explicitly excludes P0 audio rollback copies
+  (`hifideck_data/pending_writes`), diagnostic logs (`settings.log`), download URL history
+  (`settings.json`), listening history, and regenerable caches.
+-->
+<full-backup-content>
+    <include domain="file" path="hifideck_data" />
+    <exclude domain="file" path="hifideck_data/pending_writes" />
+    <exclude domain="file" path="hifideck_data/settings.log" />
+    <exclude domain="file" path="hifideck_data/settings.json" />
+    <exclude domain="file" path="hifideck_data/settings.tmp" />
+    <exclude domain="file" path="hifideck_data/listening_history.json" />
+    <exclude domain="file" path="hifideck_data/audio_analysis_cache.json" />
+    <exclude domain="file" path="hifideck_data/playback_state.json" />
+    <exclude domain="file" path="hifideck_data/sleep_timer.json" />
+</full-backup-content>
