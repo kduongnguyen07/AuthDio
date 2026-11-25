@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MDownload"
+rootProject.name = "AuthDio"
 include(":app")
  

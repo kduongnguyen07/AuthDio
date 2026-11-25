@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Dedicated translucent Share Sheet target: Share -> HiFiDeck from YouTube, YouTube Music, or any yt-dlp source -->
+        <!-- Dedicated translucent Share Sheet target: Share -> AuthDio from YouTube, YouTube Music, or any yt-dlp source -->
         <activity
             android:name=".ShareDownloadActivity"
             android:excludeFromRecents="true"

@@ -1,7 +1,9 @@
-# HiFiDeck — Synchronized Lyrics System Design
+# AuthDio — Synchronized Lyrics System Design
+
+> **Branding Note:** AuthDio was formerly known as HiFiDeck / MDownload.
 
 ## 1. Architecture Overview
-HiFiDeck's lyrics system is offline-first, UTF-8 / Vietnamese-safe, non-blocking, and strictly driven by AndroidX Media3's single active playback timeline (`PlaybackController.state.positionMs`). No second `ExoPlayer` instance or independent drifting lyric timer is used.
+AuthDio's lyrics system is offline-first, UTF-8 / Vietnamese-safe, non-blocking, and strictly driven by AndroidX Media3's single active playback timeline (`PlaybackController.state.positionMs`). No second `ExoPlayer` instance or independent drifting lyric timer is used.
 
 ```
 [Active LibraryTrack / ExportedTrackNotification]
@@ -39,7 +41,7 @@ HiFiDeck's lyrics system is offline-first, UTF-8 / Vietnamese-safe, non-blocking
   - `PlaybackController` polls at `150ms` while actively playing so active-line highlights stay responsive with negligible CPU cost.
 
 ## 4. Matching & Online Provider (`LyricsMatcher.kt` & `LyricsProvider.kt`)
-- **Provider:** Public **LRCLIB** API (`https://lrclib.net/api/get` and `https://lrclib.net/api/search`) with descriptive `User-Agent: HiFiDeck/1.2 (Android)`, strict connect/read timeouts, in-flight request deduplication, short miss cooldown, and zero audio uploading.
+- **Provider:** Public **LRCLIB** API (`https://lrclib.net/api/get` and `https://lrclib.net/api/search`) with descriptive `User-Agent: AuthDio/1.2 (Android; offline-first audio player)`, strict connect/read timeouts, in-flight request deduplication, short miss cooldown, and zero audio uploading.
 - **Metadata Normalization:**
   - Strips YouTube/release suffixes (`[Official MV]`, `(Lyrics Video)`, `(Audio)`, `(4K)`, `(Visualizer)`, etc.), normalizes Unicode NFC and whitespace, and scores both exact diacritics and folded ASCII forms so Vietnamese titles match reliably even when accented differently.
   - Combines title similarity (50%), artist similarity (25%), duration proximity within `±4s..±12s` (15%), and album bonus (10%), plus a slight preference for synchronized over plain lyrics when scores tie.
@@ -55,11 +57,11 @@ HiFiDeck's lyrics system is offline-first, UTF-8 / Vietnamese-safe, non-blocking
 | **M4A / MP4** | `moov/udta/meta/ilst/©lyr` atom parser | Bundled `libffmpeg.so` lossless remux (`-map 0 -c copy -metadata lyrics=...`) with verification read-back | Audio stream copied untouched (`-c copy`); falls back gracefully if FFmpeg unavailable |
 | **Ogg / Opus** | Ogg packet reader for Vorbis Comment / `OpusTags` (`LYRICS`, `UNSYNCEDLYRICS`) | Bundled `libffmpeg.so` lossless remux (`-map 0 -c copy -metadata lyrics=...`) + sidecar `.lrc` export | Audio stream copied untouched; sidecar `.lrc` always available |
 
-- **Safe Write Protocol (Android Scoped Storage / SAF):**
+- **Safe Write Protocol (`SafeAudioWritePipeline` + `AudioContainerPrimitives`):**
   1. Never writes to an actively downloading file (only post-export or explicit user request).
-  2. Verifies target URI is writable before starting.
-  3. Copies audio to a private temp file, writes lyrics to a second temp output file, verifies by reading back the embedded lyrics AND confirming non-empty intact audio (audio payload SHA-256 identical on pure-Kotlin MP3/FLAC rewrites, or valid audio stream check on FFmpeg remux).
-  4. Replaces target atomically (or streams verified bytes back through `ContentResolver.openOutputStream(uri, "wt")`); on any failure the original audio file remains untouched.
+  2. Pre-checks URI write capability (integrating with `MediaStore.createWriteRequest()` when needed).
+  3. Streams the original audio file to a `fsync`'d rollback copy under `filesDir/hifideck_data/pending_writes/<opId>/`, writes lyrics to a staged output file, verifies by reading back the embedded lyrics AND confirming audio-payload SHA-256 integrity.
+  4. Commits with bounded-memory streaming (or sibling atomic rename for `file://`), re-verifies destination SHA-256, and automatically restores or retains the rollback copy on any failure or process interruption.
 
 ## 6. Downloader Integration & Settings
 - New `AppSettings` flags (persisted in `SettingsStore.kt` and exposed in `SettingsScreen.kt`):

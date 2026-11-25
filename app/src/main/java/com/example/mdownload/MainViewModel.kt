@@ -1161,7 +1161,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     fun diagnosticsReport(): String = buildString {
-        appendLine("MDownload 1.1 (2)")
+        appendLine("AuthDio 1.1 (2)")
         appendLine("Android ${android.os.Build.VERSION.RELEASE} / SDK ${android.os.Build.VERSION.SDK_INT}")
         appendLine("Device: ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}")
         appendLine("Engine: ${engine.state.value}")

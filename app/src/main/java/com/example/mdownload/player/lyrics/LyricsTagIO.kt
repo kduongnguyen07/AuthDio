@@ -506,7 +506,7 @@ object LyricsTagIO {
         val (vendor, oldComments) = if (existingComment != null) {
             AudioContainerPrimitives.parseVorbisComment(existingComment.payload, 0)
         } else {
-            "HiFiDeck" to emptyList()
+            "AuthDio" to emptyList()
         }
 
         val preservedComments = oldComments.filterNot { (k, _) ->
@@ -518,7 +518,7 @@ object LyricsTagIO {
 
         val newCommentBlock = FlacBlock(
             type = 4,
-            payload = AudioContainerPrimitives.buildVorbisComment(vendor.ifBlank { "HiFiDeck" }, preservedComments)
+            payload = AudioContainerPrimitives.buildVorbisComment(vendor.ifBlank { "AuthDio" }, preservedComments)
         )
 
         val updatedBlocks = mutableListOf<FlacBlock>()

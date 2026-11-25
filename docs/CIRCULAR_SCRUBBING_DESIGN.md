@@ -1,7 +1,9 @@
-# HiFiDeck — Circular Drag Seeking Design
+# AuthDio — Circular Drag Seeking Design
+
+> **Branding Note:** AuthDio was formerly known as HiFiDeck / MDownload.
 
 ## 1. Overview
-This document specifies the continuous angle-based circular drag seeking upgrade in HiFiDeck's Orbital Music Player. It replaces the earlier tap/absolute-angle ring seek in `CircularPlaybackProgress` with a dedicated, tactile, continuous-angle scrub controller (`CircularScrubState.kt` + `CircularSeekRing.kt`) that coexists with zero conflicts alongside the long-press-and-drag Orbital Song Navigation gesture.
+This document specifies the continuous angle-based circular drag seeking upgrade in AuthDio's Orbital Music Player. It replaces the earlier tap/absolute-angle ring seek in `CircularPlaybackProgress` with a dedicated, tactile, continuous-angle scrub controller (`CircularScrubState.kt` + `CircularSeekRing.kt`) that coexists with zero conflicts alongside the long-press-and-drag Orbital Song Navigation gesture.
 
 ## 2. Angular Math & Continuity Model
 Let the circular disc center be $(c_x, c_y)$ and a pointer position be $(x, y)$.
@@ -29,9 +31,10 @@ Let the circular disc center be $(c_x, c_y)$ and a pointer position be $(x, y)$.
 | Zone | Radius Range (fraction of bezel outer radius $R$) | Owner | Gesture |
 | --- | --- | --- | --- |
 | Inner Album Artwork | $r \le 0.72 R$ | `OrbitalGestureController` (`orbitalArtworkLongPressDrag`) | Long-press $\rightarrow$ vertical drag to switch songs |
-| Outer Circular Ring Touch Band | $0.74 R \le r \le 1.18 R$ | `CircularScrubController` (`CircularSeekRing`) | Drag along ring $\rightarrow$ continuous circular seek |
+| Outer Circular Ring Touch Band | $0.74 R \le r \le 1.22 R$ | `CircularScrubController` (`CircularSeekRing`) | Drag along ring $\rightarrow$ continuous circular seek |
 
-- **Mutual Exclusion State Machine:**
+- **Polar Hit-Zone Separation & Mutual Exclusion State Machine:**
+  - Both recognizers sit on a unified `1.22 * bezelDiameter` touch container and gate pointer downs strictly by Euclidean polar distance (`hypot(x - cx, y - cy)`), preventing square inner-box corners from occluding the 45°/135°/225°/315° diagonals.
   - `CircularSeekRing` refuses to start a scrub if `orbitalController.isOrbitVisible || orbitalController.holdProgress > 0f`.
   - `orbitalArtworkLongPressDrag` refuses to start if `scrubController.isScrubbing` is true.
   - If Orbital Mode activates or the active track changes mid-scrub, `CircularScrubController.cancel()` immediately discards the preview without calling `MediaController.seekTo()`.

@@ -1,4 +1,6 @@
-# HiFiDeck — Orbital Music Player & Gesture Navigation Design
+# AuthDio — Orbital Music Player & Gesture Navigation Design
+
+> **Branding Note:** AuthDio was formerly known as HiFiDeck / MDownload.
 
 ## 1. Visual Reference Analysis
 

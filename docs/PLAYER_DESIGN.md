@@ -1,8 +1,10 @@
-# HiFiDeck Android — Native Music Player Technical Design
+# AuthDio Android — Native Music Player Technical Design
+
+> **Branding Note:** AuthDio was formerly known as HiFiDeck / MDownload.
 
 ## 1. Repository Audit Summary
 
-Before designing the player integration, the existing HiFiDeck Android repository (`D:\MDownload`, package `com.example.mdownload`) was audited:
+Before designing the player integration, the existing AuthDio Android repository (package `com.example.mdownload`) was audited:
 
 | Area | Existing State | Integration Decision |
 | --- | --- | --- |
@@ -104,7 +106,7 @@ PlaybackStateStore ◄──► HiFiPlaybackService (ExoPlayer + MediaSession) �
 ## 5. Downloader-to-Library Integration
 
 ```text
-User submits URL / Share → HiFiDeck
+User submits URL / Share → AuthDio
   → YtDlpEngine downloads & converts in app-private temp workspace (not visible to library)
   → CoverArtHelper embeds cleaned metadata + HD artwork + hidden YouTube video ID tag
   → MediaStoreExporter verifies audio via MediaMetadataRetriever & checksum, then publishes atomically
@@ -122,7 +124,7 @@ User submits URL / Share → HiFiDeck
 
 ## 6. Third-Party Dependencies & License Review
 
-| Library / Reference | Version / Role | License | Usage in HiFiDeck |
+| Library / Reference | Version / Role | License | Usage in AuthDio |
 | --- | --- | --- | --- |
 | `androidx.media3:media3-exoplayer` | `1.9.2` (Audio playback engine) | Apache-2.0 | Official AndroidX dependency |
 | `androidx.media3:media3-session` | `1.9.2` (`MediaSessionService`, `MediaController`, `MediaButtonReceiver`) | Apache-2.0 | Official AndroidX dependency (added) |
@@ -138,14 +140,14 @@ User submits URL / Share → HiFiDeck
   - `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_MEDIA_PLAYBACK` + `READ_MEDIA_AUDIO` + `POST_NOTIFICATIONS`.
   - `HiFiPlaybackService` registered with `android:foregroundServiceType="mediaPlayback"`, `android:exported="true"`, and intent filters for `androidx.media3.session.MediaSessionService` and `android.media.browse.MediaBrowserService`.
   - `androidx.media3.session.MediaButtonReceiver` registered for `android.intent.action.MEDIA_BUTTON` to enable Bluetooth/headset playback resumption.
-- **OriginOS 7 (vivo X200s) Compatibility & Verified Real-Device Findings (`V2458A`, Android 17 / API 37)**:
-  - HiFiDeck exposes standard Android `MediaSession` + `MediaStyle` notifications with embedded `artworkData` (scaled JPEG bytes), `TITLE`, `ARTIST` (also mirrored to `MediaDescription.subtitle`), `ALBUM` (also mirrored to `MediaDescription.description`), `DURATION`, and standard transport actions (`PLAY`, `PAUSE`, `NEXT`, `PREVIOUS`, `SEEK`).
-  - No package spoofing, undocumented vivo/OriginOS private APIs, or security bypasses are used.
-  - **Verified via ADB on vivo X200s (`V2458A`, Android 17, OriginOS 7)**:
+- **OriginOS 7 / Android 15–17 OEM Compatibility Considerations**:
+  - AuthDio exposes standard Android `MediaSession` + `MediaStyle` notifications with embedded `artworkData` (scaled JPEG bytes), `TITLE`, `ARTIST` (also mirrored to `MediaDescription.subtitle`), `ALBUM` (also mirrored to `MediaDescription.description`), `DURATION`, and standard transport actions (`PLAY`, `PAUSE`, `NEXT`, `PREVIOUS`, `SEEK`).
+  - No package spoofing, undocumented OEM private APIs, or security bypasses are used.
+  - **Verified Android 17 / OriginOS 7 Media3 Behavior**:
     - `HiFiPlaybackService` runs as a genuine foreground service (`isForeground=true`, `foregroundId=1001`, `types=0x00000002` / `mediaPlayback`, `category=transport`, `vis=PUBLIC`, `actions=3`).
-    - Active `MediaSession` (`com.example.mdownload/androidx.media3.session.id.hifideck_audio_session`) registers as the active `Media button session` backed by `androidx.media3.session.MediaButtonReceiver`, reporting title, artist, album, live position, and queue (`135` local tracks).
-    - Continuous background playback after `KEYCODE_HOME` verified (`state=PLAYING(3)`, position advancing continuously with **zero** OriginOS `AudioHardening` background mutes, whereas the previous non-Media3 player triggered `AudioHardening background playback would be muted`).
-    - Hardware/media button events (`KEYCODE_MEDIA_NEXT`, `KEYCODE_MEDIA_PAUSE`) work while the app is backgrounded, and tapping the notification deep link (`EXTRA_OPEN_NOW_PLAYING` with `FLAG_ACTIVITY_SINGLE_TOP`) opens directly into `NowPlayingScreen`.
-    - Live audio codec inspection verified across real local MP3 (`44.1 kHz · Stereo`) and Opus (`48 kHz · Stereo`) files via ExoPlayer `Tracks`, with `AudioFocus` (`USAGE_MEDIA / CONTENT_TYPE_MUSIC`, `GAIN`) properly coordinating focus with competing media apps.
-  - **Known Vendor Limitation**: OriginOS 7's proprietary **OriginPlayer** / Dynamic Island-style capsule maintains a vendor allowlist/heuristic for third-party apps; standard Android `MediaSession` guarantees notification shade, lock-screen controls, and Bluetooth AVRCP controls (and is automatically observed by third-party media observers like Origin Ghost Player when installed), while native OriginPlayer capsule visibility remains governed by OriginOS firmware policy.
-  - **Background Survival**: Settings exposes a shortcut to Android/OriginOS battery optimization settings (`Unrestricted battery`) so users can exempt HiFiDeck from aggressive OEM background process killing.
+    - Active `MediaSession` (`com.example.mdownload/androidx.media3.session.id.hifideck_audio_session`) registers as the active `Media button session` backed by `androidx.media3.session.MediaButtonReceiver`, reporting title, artist, album, live position, and queue.
+    - Continuous background playback after `KEYCODE_HOME` advances smoothly (`state=PLAYING(3)`) with **zero** OEM `AudioHardening` background mutes.
+    - Hardware/media button events (`KEYCODE_MEDIA_NEXT`, `KEYCODE_MEDIA_PAUSE`) work while backgrounded, and tapping the notification deep link (`EXTRA_OPEN_NOW_PLAYING` with `FLAG_ACTIVITY_SINGLE_TOP`) opens directly into `NowPlayingScreen`.
+    - Live audio codec inspection reports decoded sample rate and channel layout across MP3 and Opus files via ExoPlayer `Tracks`, with `AudioFocus` (`USAGE_MEDIA / CONTENT_TYPE_MUSIC`, `GAIN`) coordinating focus cleanly with competing media apps.
+  - **Known Vendor Limitation**: OriginOS 7's proprietary **OriginPlayer** / Dynamic Island-style capsule maintains a vendor allowlist/heuristic for third-party apps; standard Android `MediaSession` guarantees notification shade, lock-screen controls, and Bluetooth AVRCP controls, while native OriginPlayer capsule visibility remains governed by firmware policy.
+  - **Background Survival**: Settings exposes a shortcut to Android/OEM battery optimization settings (`Unrestricted battery`) so users can exempt AuthDio from aggressive background process killing.

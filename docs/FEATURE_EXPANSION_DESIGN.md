@@ -1,8 +1,10 @@
-# HiFiDeck Android — Advanced Audio & Library Feature Expansion Design
+# AuthDio Android — Advanced Audio & Library Feature Expansion Design
+
+> **Branding Note:** AuthDio was formerly known as HiFiDeck / MDownload.
 
 ## 1. Repository Audit Summary
 
-Audited `D:\MDownload` (`com.example.mdownload`, `compileSdk = 37`, `minSdk = 35`, Kotlin `2.2.10`, AGP `9.5.2`, Jetpack Compose BOM `2026.02.01`, Media3 `1.9.2`, Coil `3.2.0`, `youtubedl-android` `0.18.1` + `ffmpeg`).
+Baseline architecture audit (`com.example.mdownload`, `compileSdk = 37`, `minSdk = 35`, Kotlin `2.2.10`, AGP `9.5.2`, Jetpack Compose BOM `2026.02.01`, Media3 `1.9.2`, Coil `3.2.0`, `youtubedl-android` `0.18.1` + `ffmpeg`).
 
 ### Existing Components Verified
 - **Playback Stack**:
@@ -15,16 +17,16 @@ Audited `D:\MDownload` (`com.example.mdownload`, `compileSdk = 37`, `minSdk = 35
   - `SettingsScreen` uses collapsible `SettingsGroup` cards and bilingual (`bi(en, vi)`) copy.
 - **Downloader & Storage**:
   - `YtDlpEngine`, `DownloadQueueManager`, `DownloadForegroundService`, `MediaStoreExporter`, `CoverArtHelper`, `AudioTagFingerprint`.
-  - Verified on physical device (`vivo X200s`): both `libffmpeg.so` and `libffprobe.so` are extracted into `applicationInfo.nativeLibraryDir`, with shared libraries in `noBackupFilesDir/youtubedl-android/packages/ffmpeg/usr/lib`.
+  - Both `libffmpeg.so` and `libffprobe.so` are packaged in `applicationInfo.nativeLibraryDir`, with shared libraries unpacked in `noBackupFilesDir/youtubedl-android/packages/ffmpeg/usr/lib`.
 - **Metadata & Lyrics Infrastructure**:
-  - `LyricsTagIO` already implements pure-Kotlin ID3v2.3/v2.4 and FLAC Vorbis-comment binary frame reading/writing, MP4/Ogg comment parsing, and lossless FFmpeg `-c copy` remuxing.
+  - `AudioContainerPrimitives`, `SafeAudioWritePipeline`, `MetadataTagIO`, and `LyricsTagIO` share pure-Kotlin ID3v2.3/v2.4 & FLAC binary rewriters, MP4 (`udta` + `mdta`) / Ogg readers, bounded FFmpeg `-c copy` remuxing, and durable rollback journaling.
   - `LyricsRepository` caches lyrics in memory and sidecar storage (`LyricsStorage`), preserving user offsets and online/local layers.
   - `MusicLibraryRepository` queries MediaStore (`VOLUME_EXTERNAL_PRIMARY`) and SAF trees, overlays `ArtistStore` overrides, and manages `ArtworkCache`.
 
 ### Key Integration Risks & Mitigations
 1. **Gain Competition (ReplayGain vs. Sleep Timer Fade-Out)**:
    - *Risk*: Independent calls to `player.volume` overwrite each other, and `player.volume` is clamped to `[0f, 1f]` (no positive preamp/gain boost) and can pop on track change.
-   - *Mitigation*: Centralize gain composition in `PlaybackGainCoordinator` (`effectiveLinearGain = replayGainLinear * sleepFadeFactor`) driving a custom Media3 `ReplayGainAudioProcessor` (`BaseAudioProcessor`) installed in `HiFiPlaybackService`'s `DefaultAudioSink` with per-sample ramping. When DSP is inactive (ReplayGain Off + fade = 1.0), `isActive()` returns `false` for zero CPU overhead; if a stream bypasses PCM processing, fallback attenuation uses `player.volume` and reports the active path truthfully.
+   - *Mitigation*: Centralize gain composition in `PlaybackGainCoordinator` (`effectiveLinearGain = replayGainLinear * sleepFadeFactor`) driving a custom Media3 `ReplayGainAudioProcessor` (`BaseAudioProcessor`) installed in `HiFiPlaybackService`'s `DefaultAudioSink` with per-sample ramping and ordered single-authority handoff. At unity (`1.0f`), `queueInput()` runs a bit-exact `ByteBuffer.put()` fast path; if a stream bypasses PCM processing, fallback attenuation uses `player.volume` while holding processor target at `1.0f` and reports the active path truthfully.
 2. **Android 15–17 Scoped Storage Metadata Writes**:
    - *Risk*: Direct writes to third-party MediaStore audio files throw `SecurityException` / `RecoverableSecurityException` without user consent.
    - *Mitigation*: Use `MediaStore.createWriteRequest(contentResolver, uris)` via `ActivityResultContracts.StartIntentSenderForResult` whenever `openFileDescriptor(uri, "rw")` is denied, combined with temp-file staging, audio payload integrity verification, and read-back validation.
@@ -93,7 +95,7 @@ app/src/main/java/com/example/mdownload/
 6. `HiFiPlaybackService` re-evaluates active ReplayGain metadata if the edited track is playing.
 7. `SmartPlaylistRepository` automatically re-emits via `libraryTracks` flow observation.
 
-### 3.3 UI Entry Points (Preserving HiFiDeck Dark Cinematic Design)
+### 3.3 UI Entry Points (Preserving AuthDio Dark Cinematic Design)
 | Feature | Entry Point |
 |---|---|
 | ReplayGain | Settings → Audio & Playback → ReplayGain / Volume Normalization |

@@ -97,7 +97,7 @@ private val QUICK_FORMATS = listOf(
 )
 
 /**
- * Translucent Android Share Sheet receiver ("Share -> HiFiDeck").
+ * Translucent Android Share Sheet receiver ("Share -> AuthDio").
  * Accepts links from YouTube, YouTube Music, and any yt-dlp-supported source,
  * allowing one-tap or instant background audio download without leaving the source app.
  */
@@ -462,14 +462,14 @@ private fun ShareDownloadOverlay(
                     .padding(horizontal = 18.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Header: HiFiDeck + detected source badge + dismiss
+                // Header: AuthDio + detected source badge + dismiss
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "HiFiDeck",
+                        text = "AuthDio",
                         style = MaterialTheme.typography.titleLarge
                     )
                     StatusPill(

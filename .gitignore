@@ -19,3 +19,10 @@ local.properties
 *.aab
 *.jks
 *.keystore
+*.log
+*.hprof
+
+# Disposable local audit, validation, and archive directories
+.local-archive/
+audit/
+validation/

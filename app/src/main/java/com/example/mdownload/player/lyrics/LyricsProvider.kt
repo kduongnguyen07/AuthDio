@@ -30,7 +30,7 @@ class LrcLibLyricsProvider : OnlineLyricsProvider {
 
     companion object {
         private const val BASE_URL = "https://lrclib.net/api"
-        private const val USER_AGENT = "HiFiDeck/1.2 (Android; offline-first audio player)"
+        private const val USER_AGENT = "AuthDio/1.2 (Android; offline-first audio player)"
         private const val CONNECT_TIMEOUT_MS = 6_000
         private const val READ_TIMEOUT_MS = 8_000
     }

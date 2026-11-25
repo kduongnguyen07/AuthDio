@@ -140,7 +140,7 @@ fun HomeScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         HiFiTopChrome(
-            title = "HiFiDeck",
+            title = "AuthDio",
             trailing = {
                 if (isQueueRunning && totalSpeed > 0.0) {
                     StatusPill(
@@ -223,7 +223,7 @@ fun HomeScreen(
                                 color = tokens.inkPrimary
                             )
                             Text(
-                                text = "Paste URL, Share → HiFiDeck, or search YouTube",
+                                text = "Paste URL, Share → AuthDio, or search YouTube",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = tokens.inkSecondary
                             )

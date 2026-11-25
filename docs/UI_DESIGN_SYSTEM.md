@@ -1,4 +1,6 @@
-# HiFiDeck — Unified UI Design System ("Obsidian Orchid")
+# AuthDio — Unified UI Design System ("Obsidian Orchid")
+
+> **Branding Note:** AuthDio was formerly known as HiFiDeck / MDownload.
 
 ## 1. Architecture Overview
 

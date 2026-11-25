@@ -33,7 +33,7 @@ enum class SmartRuleType(val label: String, val valueHint: String) {
     BITRATE_AT_LEAST_KBPS("Bitrate ≥ (kbps)", "e.g. 256"),
     DURATION_AT_LEAST_SEC("Duration ≥ (sec)", "e.g. 180"),
     DURATION_AT_MOST_SEC("Duration ≤ (sec)", "e.g. 300"),
-    DOWNLOADED_BY_APP("Downloaded by HiFiDeck", "true / false")
+    DOWNLOADED_BY_APP("Downloaded by AuthDio", "true / false")
 }
 
 data class PlaylistRule(
@@ -58,7 +58,7 @@ data class PlaylistRule(
         SmartRuleType.BITRATE_AT_LEAST_KBPS -> "Bitrate ≥ $intValue kbps"
         SmartRuleType.DURATION_AT_LEAST_SEC -> "Duration ≥ ${intValue}s"
         SmartRuleType.DURATION_AT_MOST_SEC -> "Duration ≤ ${intValue}s"
-        SmartRuleType.DOWNLOADED_BY_APP -> if (boolValue) "Downloaded via HiFiDeck" else "External device file"
+        SmartRuleType.DOWNLOADED_BY_APP -> if (boolValue) "Downloaded via AuthDio" else "External device file"
     }
 }
 
@@ -150,7 +150,7 @@ object BuiltInSmartPlaylists {
         SmartPlaylistDefinition(
             id = ID_RECENTLY_DOWNLOADED,
             name = "Recently Downloaded",
-            description = "Tracks downloaded through HiFiDeck",
+            description = "Tracks downloaded through AuthDio",
             rules = listOf(PlaylistRule(SmartRuleType.DOWNLOADED_BY_APP, boolValue = true)),
             matchMode = MatchMode.ALL,
             sortOrder = PlaylistSortOrder.DATE_ADDED_DESC,

@@ -510,7 +510,7 @@ object MetadataTagIO {
         val (vendor, oldComments) = if (existingComment != null) {
             AudioContainerPrimitives.parseVorbisComment(existingComment.payload, 0)
         } else {
-            "HiFiDeck" to emptyList()
+            "AuthDio" to emptyList()
         }
 
         val keptComments = oldComments.filterNot { (k, v) ->
@@ -542,7 +542,7 @@ object MetadataTagIO {
 
         val newCommentBlock = FlacBlock(
             type = 4,
-            payload = AudioContainerPrimitives.buildVorbisComment(vendor.ifBlank { "HiFiDeck" }, keptComments)
+            payload = AudioContainerPrimitives.buildVorbisComment(vendor.ifBlank { "AuthDio" }, keptComments)
         )
 
         val updatedBlocks = mutableListOf<FlacBlock>()

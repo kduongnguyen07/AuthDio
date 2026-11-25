@@ -286,8 +286,8 @@ fun SettingsScreen(
                 Toggle(
                     bi("Instant download on Share", "Tải ngay khi bấm Chia sẻ"),
                     bi(
-                        "When sharing a track via Share → HiFiDeck, start downloading immediately in the background without showing the popup sheet.",
-                        "Khi chọn Chia sẻ → HiFiDeck cho một bài hát, tự động tải nền ngay lập tức mà không cần mở bảng xác nhận."
+                        "When sharing a track via Share → AuthDio, start downloading immediately in the background without showing the popup sheet.",
+                        "Khi chọn Chia sẻ → AuthDio cho một bài hát, tự động tải nền ngay lập tức mà không cần mở bảng xác nhận."
                     ),
                     s.instantShareDownload,
                     change = viewModel::setInstantShareDownload
@@ -295,7 +295,7 @@ fun SettingsScreen(
             }
 
             val playbackSummary = buildString {
-                append(if (s.scanAllDeviceMusic) bi("All local music", "Toàn bộ nhạc trên máy") else bi("HiFiDeck folder only", "Chỉ thư mục HiFiDeck"))
+                append(if (s.scanAllDeviceMusic) bi("All local music", "Toàn bộ nhạc trên máy") else bi("AuthDio folder only", "Chỉ thư mục AuthDio"))
                 append(" · ")
                 append(String.format(java.util.Locale.US, "%.2gx", s.defaultPlaybackSpeed))
             }
@@ -303,8 +303,8 @@ fun SettingsScreen(
                 Toggle(
                     bi("Show all local audio on device", "Hiển thị toàn bộ nhạc trên máy"),
                     bi(
-                        "Browse MP3, M4A, Opus, FLAC, and OGG files across MediaStore in addition to HiFiDeck downloads.",
-                        "Duyệt các tệp MP3, M4A, Opus, FLAC và OGG trong MediaStore bên cạnh nhạc tải từ HiFiDeck."
+                        "Browse MP3, M4A, Opus, FLAC, and OGG files across MediaStore in addition to AuthDio downloads.",
+                        "Duyệt các tệp MP3, M4A, Opus, FLAC và OGG trong MediaStore bên cạnh nhạc tải từ AuthDio."
                     ),
                     s.scanAllDeviceMusic,
                     change = viewModel::setScanAllDeviceMusic
@@ -758,9 +758,9 @@ fun SettingsScreen(
                         label = bi("Share diagnostics", "Chia sẻ chẩn đoán"),
                         onClick = {
                             val share = Intent(Intent.ACTION_SEND).setType("text/plain")
-                                .putExtra(Intent.EXTRA_SUBJECT, "MDownload diagnostics")
+                                .putExtra(Intent.EXTRA_SUBJECT, "AuthDio diagnostics")
                                 .putExtra(Intent.EXTRA_TEXT, viewModel.diagnosticsReport())
-                            context.startActivity(Intent.createChooser(share, "MDownload diagnostics"))
+                            context.startActivity(Intent.createChooser(share, "AuthDio diagnostics"))
                         },
                         primary = false
                     )
@@ -773,7 +773,7 @@ fun SettingsScreen(
                 }
             }
 
-            SettingsGroup("about", bi("About MDownload", "Giới thiệu MDownload"), "HiFiDeck 1.2 · Obsidian Orchid") {
+            SettingsGroup("about", bi("About AuthDio", "Giới thiệu AuthDio"), "AuthDio 1.2 · Obsidian Orchid") {
                 Text(bi("An offline audio library for Android.", "Thư viện nhạc ngoại tuyến trên Android."), color = tokens.inkPrimary)
                 Text(
                     bi(
